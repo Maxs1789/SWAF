@@ -69,7 +69,7 @@ class Core
     }
 
     /**
-     * Appelle une route.
+     * Appèle une route.
      *
      * Si l'url donnée vaut null, le lien courant sera appelé.
      *
