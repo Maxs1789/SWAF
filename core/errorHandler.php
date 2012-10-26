@@ -32,7 +32,7 @@ function exceptionHandler ($ex)
     echo " $file:$line<br/>\n";
 }
 
-//set_exception_handler("\SWAF\Core\\exceptionHandler");
+set_exception_handler("\SWAF\Core\\exceptionHandler");
 
 /**
  * Gestion des erreurs.

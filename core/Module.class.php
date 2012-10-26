@@ -115,7 +115,7 @@ class Module
                     "Impossible de trouver la classe '$className'"
                 );
             }
-            $controller['inst'] = new $className();
+            $controller['inst'] = new $className($this->_directory);
             if (!($controller['inst'] instanceof \SWAF\Core\Controller)) {
                 $controller['inst'] = null;
                 throw new CoreException(
