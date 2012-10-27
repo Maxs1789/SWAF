@@ -29,24 +29,41 @@ define('ACTION_REGEX', ' *([[:alnum:]_]+) *\((,? *'.ARG_REGEX.' *)*\)');
  */
 class Router
 {
-    private $_routes;
-
     /**
-     * Constructeur de Router.
+     * Tableau des routes.
      *
-     * @return null.
+     * Voici un exemple :
+     *
+     *     array(
+     *         'routeName' => array(
+     *             'pattern'    => '/{page}{ext}',
+     *             'controller' => 'FrontController',
+     *             'action'     => 'home($page, $ext)'
+     *             'regex'      => '/([[:alnum:]]*)(\.html?|)',
+     *             'vars'       => array(
+     *                 'page' => '[[:alnum:]]*',
+     *                 'ext'  => '\.html?|'
+     *             )
+     *         ),
+     *         ...
+     *     );
+     *
+     * - 'pattern'    - Pattern de la route.
+     * - 'controller' - Contrôleur à appeler.
+     * - 'action'     - Action du contrôleur.
+     * - 'regex'      - Expression régulière pour la récupération des variables.
+     * - 'vars'       - Qui contient les variables dans l'ordre avec leur règle.
+     *
+     * @var array
      */
-    public function __construct ()
-    {
-        $this->_routes = array();
-    }
+    private $_routes = array();
 
     /**
      * Charge un fichier de routes.
      *
      * @param string $fileName Nom du fichier à charger.
      *
-     * @return null.
+     * @return null
      */
     public function loadFile ($fileName)
     {
@@ -63,18 +80,18 @@ class Router
      * l'action qui y correspondent.
      *
      * Le tableau est retourné sous la forme :
-     * array(
-     *     'controller' => nom_du_controleur,
-     *     'method'     => nom_de_la_methode,
-     *     'action'     => action
-     * );
+     *     array(
+     *         'controller' => nom_du_controleur,
+     *         'method'     => nom_de_la_methode,
+     *         'action'     => action
+     *     );
      * 
      * L'action est une string avec tout les paramètres, par exemple 
      * "test('42', 'a')".
      *
      * @param string $url Url.
      *
-     * @return l'action si l'url à été trouvé ou null dans le cas contraire.
+     * @return array L'action si l'url à été trouvé ou null dans le cas contraire.
      */
     public function getAction ($url)
     {
@@ -109,7 +126,7 @@ class Router
      * @param string $routeName Nom de la route.
      * @param array  $vars      Tableau des paramètres.
      *
-     * @return L'url généré.
+     * @return string L'url généré.
      * @throw CoreException Si la route n'est pas trouvée ou que les paramètres 
      *                      sont incorrect.
      */
@@ -141,7 +158,7 @@ class Router
      *
      * @param string $fileName Nom du fichier.
      *
-     * @return null.
+     * @return null
      * @throw FileException Lors d'une erreur de fichier.
      */
     private function _loadBaseFile ($fileName)
@@ -173,7 +190,7 @@ class Router
      *
      * @param array $route Tableau de la route.
      *
-     * @return La route complètée et vérifiée.
+     * @return string La route complètée et vérifiée.
      * @throw CoreException Si la route est mal définie.
      */
     private function _checkBaseRoute ($route)
@@ -243,7 +260,7 @@ class Router
      *
      * @param string $fileName Nom du fichier.
      *
-     * @return null.
+     * @return null
      * @throw FileException Lors d'une erreur de fichier.
      */
     private function _loadCacheFile ($fileName)
@@ -257,7 +274,7 @@ class Router
      *
      * @param string $fileName Nom du fichier.
      *
-     * @return null.
+     * @return null
      * @throw FileException Lors d'une erreur de fichier.
      */
     private function _saveCacheFile ($fileName)

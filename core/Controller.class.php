@@ -25,6 +25,11 @@ namespace SWAF\Core;
  */
 class Controller
 {
+    /**
+     * Générateur de template.
+     *
+     * @var Template
+     */
     private $_template;
 
     /**
@@ -32,7 +37,7 @@ class Controller
      *
      * @param string $directory Nom du dossier du module.
      *
-     * @return null.
+     * @return null
      */
     public function __construct ($directory = MAIN_DIR)
     {
@@ -43,9 +48,9 @@ class Controller
      * Assigne une variable du générateur de template.
      *
      * @param string $varName Nom de la variable à assigner.
-     * @param object $var     Valeur à assigner à la variable.
+     * @param mixed  $var     Valeur à assigner à la variable.
      *
-     * @return null.
+     * @return null
      */
     public function assignTemplateVar ($varName, $var)
     {
@@ -57,7 +62,7 @@ class Controller
      *
      * @param array $vars Tableau des variables à assigner.
      *
-     * @return null.
+     * @return null
      */
     public function assignTemplateVars ($vars)
     {
@@ -69,7 +74,7 @@ class Controller
      *
      * @param string $varName Nom de la variable à effacer.
      *
-     * @return null.
+     * @return null
      */
     public function clearTemplateVar ($varName)
     {
@@ -81,7 +86,7 @@ class Controller
      *
      * @param string $fileName Nom du fichier à afficher.
      *
-     * @return null.
+     * @return null
      */
     public function show ($fileName)
     {

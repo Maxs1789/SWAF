@@ -36,7 +36,7 @@ class FileException extends CoreException
      * @param integer   $code     Code d'erreur.
      * @param Exception $previous Exception précédente.
      *
-     * @return null.
+     * @return null
      */
     public function __construct ($fileName, $code, $previous = null)
     {
@@ -62,7 +62,7 @@ class FileException extends CoreException
      *
      * @param string $fileName Le nom du fichier à vérifier.
      *
-     * @return null.
+     * @return null
      * @throw FileException Si le fichier n'existe pas.
      */
     public static function checkExists ($fileName)
@@ -78,7 +78,7 @@ class FileException extends CoreException
      *
      * @param string $fileName Le nom du fichier à vérifier.
      *
-     * @return null.
+     * @return null
      * @throw FileException Si le fichier ne peut être lu.
      */
     public static function checkReadable ($fileName)
@@ -95,7 +95,7 @@ class FileException extends CoreException
      *
      * @param string $fileName Le nom du fichier à vérifier.
      *
-     * @return null.
+     * @return null
      * @throw FileException Si on ne peut écrire dans le fichier.
      */
     public static function checkWritable ($fileName)

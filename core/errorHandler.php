@@ -18,7 +18,7 @@ namespace SWAF\Core;
  *
  * @param Exception $ex Exception.
  *
- * @return null.
+ * @return null
  */
 function exceptionHandler ($ex)
 {   
@@ -42,7 +42,7 @@ set_exception_handler("\SWAF\Core\\exceptionHandler");
  * @param string  $file Nom du fichier.
  * @param int     $line Numéro de ligne.
  *
- * @return null.
+ * @return null
  */
 function errorHandler ($no, $str, $file, $line)
 {

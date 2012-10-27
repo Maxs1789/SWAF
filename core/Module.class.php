@@ -25,15 +25,50 @@ namespace SWAF\Core;
  */
 class Module
 {
+    /**
+     * Routeur du module.
+     *
+     * @var Router
+     */
     private $_router;
+    /**
+     * Tableau des contrôleurs du module.
+     *
+     * Il se présente sous la forme :
+     *
+     *     array(
+     *         'Controller' => array(
+     *             'file' => 'Controller.class.php',
+     *             'inst' => new Controller()
+     *         ),
+     *         ...
+     *     )
+     *
+     * 'Controller' doit correspondre avec le nom de la classe de celui-ci.
+     *
+     * - 'file' - Fichier contenant la classe du contrôleur.
+     * - 'inst' - Instance du contrôleur.
+     *
+     * @var array
+     */
     private $_controllers;
+    /**
+     * Espace de nom du module.
+     *
+     * @var string
+     */
     private $_namespace;
+    /**
+     * Dossier du module.
+     *
+     * @var string
+     */
     private $_directory;
 
     /**
      * Constructeur de Module.
      *
-     * @return null.
+     * @return null
      */
     public function __construct ()
     {
@@ -48,7 +83,7 @@ class Module
      *
      * @param string $directory Dossier du module.
      *
-     * @return null.
+     * @return null
      * @throw FileException Lors d'une erreur de fichier.
      */
     public function init ($directory)
@@ -93,7 +128,7 @@ class Module
      *
      * @param string $controllerName Nom du contrôleur.
      *
-     * @return Une référence du contrôleur demandé.
+     * @return Controller Une référence du contrôleur demandé.
      * @throw CoreException Si le contrôleur n'existe pas.
      */
     public function &controller ($controllerName)
@@ -132,7 +167,7 @@ class Module
      *
      * @param string $url L'url à appeler.
      *
-     * @return null.
+     * @return null
      * @throw CoreException Si la route ne peut être appelée ou que le 
      *                      contrôleur n'existe pas.
      */

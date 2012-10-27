@@ -25,28 +25,76 @@ namespace SWAF\Core;
  */
 class Core
 {
+    /**
+     * Expression régulière d'un url valide.
+     *
+     * @var string
+     */
     const LINK_REGEX = '[a-zA-Z0-9/%\-_\.]*';
 
-    private $_modules;
-    private $_routes;
+    /**
+     * Tableau des modules.
+     *
+     * Il se présente sous la forme :
+     *
+     *     array(
+     *         'module1' => array(
+     *             'dir'  => 'modules/mod1',
+     *             'inst' => new \SWAF\Core\Module('modules/mod1')
+     *         ),
+     *     
+     *         'module2' => array(
+     *             'dir'  => 'modules/mod2',
+     *             'inst' => new \SWAF\Core\Module('modules/mod2')
+     *         ),
+     *         ...
+     *     );
+     *
+     * - 'dir'  - Dossier du module.
+     * - 'inst' - Instance du module.
+     *
+     * @var array
+     */
+    private $_modules = array();
+    /**
+     * Tableau des routes globale.
+     *
+     * Il se présente sous la forme :
+     *
+     *     array(
+     *         'route1' => array(
+     *             'module'  => 'module1',
+     *             'pattern' => '/mod1/',
+     *             'regex'   => '/mod1/(.*)'
+     *         ),
+     *    
+     *         'route2' => array(
+     *             'module'  => 'module2',
+     *             'pattern' => '/mod2/',
+     *             'regex'   => '/mod2/(.*)'
+     *         ),
+     *         ...
+     *     );
+     *
+     * - 'module'  - Nom du module à appeler.
+     * - 'pattern' - Pattern de la route.
+     * - 'regex'   - Expression régulière pour la sous-route.
+     *
+     * @var array
+     */
+    private $_routes  = array();
 
+    /**
+     * Lien courant.
+     *
+     * @var string
+     */
     private static $_currentLink;
 
     /**
-     * Constructeur de Core.
+     * Initialise le Core du framework.
      *
-     * @return null.
-     */
-    public function __construct ()
-    {
-        $this->_modules = array();
-        $this->_routes  = array(); 
-    }
-
-    /**
-     * Initialise le Coeur du framework.
-     *
-     * @return null.
+     * @return null
      */
     public function init ()
     {
@@ -75,7 +123,7 @@ class Core
      *
      * @param string $url La route à appeler.
      *
-     * @return true si la route à pu être appelée, false sinon.
+     * @return bool true si la route à pu être appelée, false sinon.
      */
     public function call ($url = null)
     {
@@ -98,7 +146,7 @@ class Core
      *
      * @param string $moduleName Le nom du module.
      *
-     * @return La référence du module.
+     * @return string La référence du module.
      */
     public function &module ($moduleName)
     {
@@ -126,7 +174,7 @@ class Core
     /**
      * Retourne le lien courant.
      *
-     * @return Le lien courant.
+     * @return string Le lien courant.
      */
     public static function currentLink ()
     {
@@ -149,7 +197,7 @@ class Core
      *
      * @param string $fileName Nom du fichier.
      *
-     * @return null.
+     * @return null
      * @throw FileException Si le fichier ne peut être lu.
      */
     private function _loadRouteFile ($fileName)
@@ -181,7 +229,7 @@ class Core
      *
      * @param array $route Tableau de la route.
      *
-     * @return La route complètée et vérifiée.
+     * @return array La route complètée et vérifiée.
      * @throw CoreException Si la route est mal définie.
      */
     private function _checkRoute ($route)

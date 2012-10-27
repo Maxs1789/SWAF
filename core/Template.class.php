@@ -25,19 +25,44 @@ namespace SWAF\Core;
  */
 class Template
 {
+    /**
+     * Expression régulière pour une variable.
+     *
+     * @var string
+     */
     const REG_MATCH_VAR       = '#\$((\{(\.?[[:alnum:]_]+)+\})+)#';
+    /**
+     * Expression régulière pour un bloc.
+     *
+     * @var string
+     */
     const REG_MATCH_BLOCK     = '#<!-- *([A-Z]+) *(((?!-->).)*) +-->#';
+    /**
+     * Expression régulière pour une variable de bloc.
+     *
+     * @var string
+     */
     const REG_MATCH_BLOCK_VAR = '#\$((\[(\.?[[:alnum:]_]+)+\])+)#';
 
+    /**
+     * Tableau des variables pour la génération.
+     *
+     * @var array
+     */
     private $_vars;
+    /**
+     * Dossier courant de travail.
+     *
+     * @var string
+     */
     private $_wrkDir;
 
     /**
      * Constructeur de Template.
      *
-     * @param string $directory.
+     * @param string $directory Dossier courant de travail.
      *
-     * @return null.
+     * @return null
      */
     public function __construct ($directory = MAIN_DIR)
     {
@@ -52,9 +77,9 @@ class Template
      * Assigne une variable pour la génération.
      *
      * @param string $varName Nom de la variable à assigner.
-     * @param object $var     Valeur à assigner à la variable.
+     * @param mixed  $var     Valeur à assigner à la variable.
      *
-     * @return null.
+     * @return null
      */
     public function assignVar ($varName, $var)
     {
@@ -66,7 +91,7 @@ class Template
      *
      * @param array $vars Tableau des variables à assigner.
      *
-     * @return null.
+     * @return null
      */
     public function assignVars ($vars)
     {
@@ -80,7 +105,7 @@ class Template
      *
      * @param string $varName Nom de la variable à effacer.
      *
-     * @return null.
+     * @return null
      */
     public function clearVar ($varName)
     {
@@ -92,7 +117,7 @@ class Template
      *
      * @param string $fileName Nom du fichier à afficher.
      *
-     * @return null.
+     * @return null
      */
     function show ($fileName)
     {
@@ -110,7 +135,7 @@ class Template
      *
      * @param string $fileName Nom du fichier à afficher.
      *
-     * @return null.
+     * @return null
      * @throw FileException Si le fichier ne peut être lu.
      */
     private function _generate ($fileName)
@@ -204,7 +229,7 @@ class Template
      *
      * @param string $tplVar Nom de la variable template simple.
      *
-     * @return Nom de la variable dans le contexte.
+     * @return string Nom de la variable dans le contexte.
      */
     private function _getSimpleVar ($tplVar)
     {
@@ -220,7 +245,7 @@ class Template
      *
      * @param string $tplVar Nom de la variable template.
      *
-     * @return Nom de la variable dans le contexte.
+     * @return string Nom de la variable dans le contexte.
      */
     private function _getVar ($tplVar)
     {
@@ -241,7 +266,7 @@ class Template
      *
      * @param string $tplVar Nom de la variable template.
      *
-     * @return Compteur de la variable dans ce contexte.
+     * @return string Compteur de la variable dans ce contexte.
      */
     private function _getCounter ($tplVar)
     {
@@ -254,7 +279,7 @@ class Template
      *
      * @param string $tplVar Nom de la variable template.
      *
-     * @return Variable template propre.
+     * @return string Variable template propre.
      */
     private function _getClearVar ($tplVar)
     {
@@ -267,7 +292,7 @@ class Template
      *
      * @param string $var Nom de la variable.
      *
-     * @return Code d'affichage.
+     * @return string Code d'affichage.
      */
     private function _getEcho ($var)
     {
@@ -279,7 +304,7 @@ class Template
      *
      * @param string $tplVar Nom de la variable.
      *
-     * @return Code de boucle.
+     * @return string Code de boucle.
      */
     private function _getFor ($tplVar)
     {
@@ -293,7 +318,7 @@ class Template
      *
      * @param string $tplVar Nom de la variable.
      *
-     * @return Code de non-boucle.
+     * @return string Code de non-boucle.
      */
     private function _getNoBlock ($tplVar)
     {
@@ -306,7 +331,7 @@ class Template
      *
      * @param string $condition Condition à tester.
      *
-     * @return Code de condition.
+     * @return string Code de condition.
      */
     private function _getIf ($condition)
     {
@@ -323,7 +348,7 @@ class Template
     *
     * @param string $fileName Nom du fichier à inclure.
     *
-    * @return Code d'inclusion.
+    * @return string Code d'inclusion.
     */
     private function _getInclude ($fileName)
     {

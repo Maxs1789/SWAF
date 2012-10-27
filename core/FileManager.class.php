@@ -30,7 +30,7 @@ class FileManager
      *
      * @param string $fileName Nom du fichier.
      *
-     * @return Le chemin du fichier cache.
+     * @return string Le chemin du fichier cache.
      */
     public static function cachepath ($fileName)
     {
@@ -50,7 +50,7 @@ class FileManager
      * @param string  $fileName Nom basique du fichier.
      * @param bool    $mkdir    Si à true, crée le dossier cache si nécessaire.
      *
-     * @return true si le fichier cache peut être chargé, false sinon.
+     * @return bool true si le fichier cache peut être chargé, false sinon.
      */
     public static function checkForCache ($fileName, $mkdir = true)
     {
