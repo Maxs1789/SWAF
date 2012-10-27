@@ -9,16 +9,29 @@
  * PHP version 5
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  PHP License 3.01
  * @version  GIT: git://github.com/Maxs1789/SWAF.git
  * @link     https://github.com/Maxs1789/SWAF
  */
+
+/**
+ * Version de SWAF.
+ */
 define('SWAF_VERSION', '0.1-12-10');
-define('CORE_DIR',     __DIR__);
-define('MAIN_DIR',     realpath(CORE_DIR.'/../'));
-define('CACHE_DIR',    MAIN_DIR.DIRECTORY_SEPARATOR.'cache');
+/**
+ * Dossier du Core.
+ */
+define('CORE_DIR', __DIR__);
+/**
+ * Dossier principal.
+ */
+define('MAIN_DIR', realpath(CORE_DIR.'/../'));
+/**
+ * Dossier de cache.
+ */
+define('CACHE_DIR', MAIN_DIR.DIRECTORY_SEPARATOR.'cache');
 
 require 'exceptions.php';
 require 'FileManager.class.php';

@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  PHP License 3.01
  * @version  GIT: git://github.com/Maxs1789/SWAF.git
@@ -17,7 +17,7 @@ namespace SWAF\Core;
  * Classe utilitaire pour la gestion des fichiers cache.
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  http://www.php.net/license/3_01.txt PHP License 3.01
  * @version  Release: 0.1

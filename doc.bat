@@ -1,2 +1,2 @@
 rm -rf doc
-phpdoc run -d core -t doc
+phpdoc run --title SWAF -p -d core -t doc

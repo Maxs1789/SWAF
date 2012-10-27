@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  PHP License 3.01
  * @version  GIT: git://github.com/Maxs1789/SWAF.git
@@ -13,15 +13,11 @@
  */
 namespace SWAF\Core;
 
-define('VAR_REGEX',    '\{([[:alnum:]]+)\}');
-define('ARG_REGEX',    '\$([[:alnum:]]+)');
-define('ACTION_REGEX', ' *([[:alnum:]_]+) *\((,? *'.ARG_REGEX.' *)*\)');
-
 /**
  * Gère les routes.
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  http://www.php.net/license/3_01.txt PHP License 3.01
  * @version  Release: 0.1
@@ -29,6 +25,25 @@ define('ACTION_REGEX', ' *([[:alnum:]_]+) *\((,? *'.ARG_REGEX.' *)*\)');
  */
 class Router
 {
+    /**
+     * Expression régulière pour une variable.
+     *
+     * @var string
+     */
+    const REG_VAR    = '\{([[:alnum:]]+)\}';
+    /**
+     * Expression régulière pour un argument.
+     *
+     * @var string
+     */
+    const REG_ARG    = '\$([[:alnum:]]+)';
+    /**
+     * Expression régulière pour une action.
+     *
+     * @var string
+     */
+    const REG_ACTION = ' *([[:alnum:]_]+) *';
+
     /**
      * Tableau des routes.
      *
@@ -80,6 +95,7 @@ class Router
      * l'action qui y correspondent.
      *
      * Le tableau est retourné sous la forme :
+     *
      *     array(
      *         'controller' => nom_du_controleur,
      *         'method'     => nom_de_la_methode,
@@ -87,7 +103,7 @@ class Router
      *     );
      * 
      * L'action est une string avec tout les paramètres, par exemple 
-     * "test('42', 'a')".
+     * `actionName('value1', 'value2')`.
      *
      * @param string $url Url.
      *
@@ -99,7 +115,7 @@ class Router
             if (preg_match('#^'.$route['regex'].'$#', $url, $matches)) {
                 $vars = $matches;
                 $action = $route['action'];
-                preg_match('# *'.ACTION_REGEX.' *$#', $action, $matches);
+                preg_match('#^'.self::REG_ACTION.'#', $action, $matches);
                 $method = $matches[1];
                 $i = 1;
                 if (isset($route['vars'])) {
@@ -212,7 +228,7 @@ class Router
         $controller = $route['controller'];
         $action     = $route['action'];
         // Analyse du pattern et récupération des variables
-        preg_match_all('#'.VAR_REGEX.'#', $pattern, $matches);        
+        preg_match_all('#'.self::REG_VAR.'#', $pattern, $matches);        
         if (isset($matches[1])) {
             foreach ($matches[1] as $var) {
                 if (isset($vars[$var])) {
@@ -234,10 +250,13 @@ class Router
             );
         }
         // Contrôle de l'action
-        if (!preg_match('#^ *'.ACTION_REGEX.' *$#', $action)) {
+        if (!preg_match(
+            '#^ *'.self::REF_ACTION.'\((,? *'.self::REG_ARG.' *)*\) *$#', 
+            $action
+        )) {
             throw new CoreException("Action '$action' incorrecte.");
         }
-        preg_match_all('#'.ARG_REGEX.'#', $action, $matches);        
+        preg_match_all('#'.self::REG_ARG.'#', $action, $matches);        
         if (isset($matches[1])) {
             foreach ($matches[1] as $var) {
                 if (!isset($vars[$var])) {
