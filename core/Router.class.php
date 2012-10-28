@@ -107,7 +107,8 @@ class Router
      *
      * @param string $url Url.
      *
-     * @return array L'action si l'url à été trouvé ou null dans le cas contraire.
+     * @return array L'action si l'url à été trouvé ou null dans le cas
+     *               contraire.
      */
     public function getAction ($url)
     {
@@ -228,7 +229,7 @@ class Router
         $controller = $route['controller'];
         $action     = $route['action'];
         // Analyse du pattern et récupération des variables
-        preg_match_all('#'.self::REG_VAR.'#', $pattern, $matches);        
+        preg_match_all('#'.self::REG_VAR.'#', $pattern, $matches);
         if (isset($matches[1])) {
             foreach ($matches[1] as $var) {
                 if (isset($vars[$var])) {
@@ -251,7 +252,7 @@ class Router
         }
         // Contrôle de l'action
         if (!preg_match(
-            '#^ *'.self::REF_ACTION.'\((,? *'.self::REG_ARG.' *)*\) *$#', 
+            '#^ *'.self::REG_ACTION.'\((,? *'.self::REG_ARG.' *)*\) *$#',
             $action
         )) {
             throw new CoreException("Action '$action' incorrecte.");

@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  PHP License 3.01
  * @version  GIT: git://github.com/Maxs1789/SWAF.git
@@ -17,7 +17,7 @@ namespace SWAF\Core;
  * Contrôleur.
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  http://www.php.net/license/3_01.txt PHP License 3.01
  * @version  Release: 0.1
@@ -26,71 +26,88 @@ namespace SWAF\Core;
 class Controller
 {
     /**
-     * Générateur de template.
+     * Module du contrôleur.
      *
-     * @var Template
+     * @var Module
      */
-    private $_template;
+    private $_module;
 
     /**
      * Constructeur de Contrôleur.
      *
-     * @param string $directory Nom du dossier du module.
+     * @param Module $module Module du contrôleur.
      *
      * @return null
      */
-    public function __construct ($directory = MAIN_DIR)
+    public function __construct (&$module)
     {
-        $this->_template = new Template($directory.'/style');
+        $this->_module = $module;
     }
 
     /**
-     * Assigne une variable du générateur de template.
+     * Retourne une référence du module du contrôleur.
      *
-     * @param string $varName Nom de la variable à assigner.
-     * @param mixed  $var     Valeur à assigner à la variable.
-     *
-     * @return null
+     * @return Module Référence du module.
      */
-    public function assignTemplateVar ($varName, $var)
+    protected function &module ()
     {
-        $this->_template->assignVar($varName, $var);
+        return $this->_module;
     }
-
     /**
-     * Assigne des variables du générateur de template.
+     * Assigne une variable de vues.
      *
-     * @param array $vars Tableau des variables à assigner.
+     * @param string $varName Nom de la variable.
+     * @param mixed  $var     Valeur de la variable.
      *
      * @return null
      */
-    public function assignTemplateVars ($vars)
+    protected function setVar ($varName, $var)
     {
-        $this->_template->assignVars($vars);
+        ViewManager::setTemplateVar($varName, $var);
     }
-
     /**
-     * Efface une variable du générateur de template.
+     * Assigne des variables de vues.
      *
-     * @param string $varName Nom de la variable à effacer.
+     * @param array $vars Tableau des variables.
      *
      * @return null
      */
-    public function clearTemplateVar ($varName)
+    protected function setVars ($vars)
     {
-        $this->_template->clearVar($varName);
+        ViewManager::setTemplateVars($vars);
     }
-
     /**
-     * Affiche une page via le générateur de template.
+     * Supprime une variable de vues.
      *
-     * @param string $fileName Nom du fichier à afficher.
+     * @param string $varName Nom de la variable.
      *
      * @return null
      */
-    public function show ($fileName)
+    protected function unsetVar ($varName)
     {
-        $this->_template->show($fileName);
+        ViewManager::unsetTemplateVar($varName);
+    }
+    /**
+     * Vérifie qu'un variable de vues est assignée.
+     *
+     * @param string $varName Nom de la variable.
+     *
+     * @return bool true si elle est assignée, false sinon.
+     */
+    protected function issetVar ($varName)
+    {
+        return ViewManager::issetTemplateVar($vaName);
+    }
+    /**
+     * Retourne la valeur d'une variable de vues.
+     *
+     * @param string $varName Nom de la variable.
+     *
+     * @return mixed Valeur de la variable.
+     */
+    protected function getVar ($varName)
+    {
+        return ViewManager::getTemplateVar($varName);
     }
 }
 

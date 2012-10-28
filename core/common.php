@@ -40,6 +40,7 @@ require 'Controller.class.php';
 require 'Module.class.php';
 require 'Core.class.php';
 require 'Template.class.php';
+require 'ViewManager.class.php';
 
 require 'errorHandler.php';
 

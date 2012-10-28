@@ -1,5 +1,5 @@
 <p>
-<!-- IF $[show_users] -->
+<!-- IF ${show_users} -->
     <h3>Liste des utilisateurs : </h3>
     <table>
         <tr>
@@ -7,13 +7,13 @@
             <th>LOGIN</th>
             <th>DATE</th>
         </tr>
-        <!-- BLOCK $[users] -->
+        <!-- BLOCK ${users} -->
         <tr>
             <td>${users}{id}</td>
             <td>${users}{log}</td>
             <td>${users}{rdate}</td>
         </tr>
-        <!-- NOBLOCK $[users] -->
+        <!-- EMPTY ${users} -->
         <tr>
             <td colspan="3">Aucuns utilisateurs ...</td>
         </tr>
@@ -22,5 +22,5 @@
 <!-- ELSE -->
     --- TEMPLATE TEST ---<br/>
     Template Version : ${TEMPLATE.version}
-<!-- ENDIF -->
+<!-- END -->
 </p>

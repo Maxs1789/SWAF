@@ -47,8 +47,8 @@ class FileManager
     /**
      * Vérifie si l'on peut charger un fichier cache.
      *
-     * @param string  $fileName Nom basique du fichier.
-     * @param bool    $mkdir    Si à true, crée le dossier cache si nécessaire.
+     * @param string $fileName Nom basique du fichier.
+     * @param bool   $mkdir    Si à true, crée le dossier cache si nécessaire.
      *
      * @return bool true si le fichier cache peut être chargé, false sinon.
      */

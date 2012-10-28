@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  PHP License 3.01
  * @version  GIT: git://github.com/Maxs1789/SWAF.git
@@ -17,7 +17,7 @@ namespace SWAF\Core;
  * Classe de génération de template.
  *
  * @category Framework
- * @package  SWAF
+ * @package  SWAF\Core
  * @author   Van den Branden Maxime <max.van.den.branden@gmail.com>
  * @license  http://www.php.net/license/3_01.txt PHP License 3.01
  * @version  Release: 0.1
@@ -30,58 +30,56 @@ class Template
      *
      * @var string
      */
-    const REG_MATCH_VAR       = '#\$((\{(\.?[[:alnum:]_]+)+\})+)#';
+    const REG_VAR = '\$((\{(\.?[[:alnum:]_]+)+\})+)';
     /**
      * Expression régulière pour un bloc.
      *
      * @var string
      */
-    const REG_MATCH_BLOCK     = '#<!-- *([A-Z]+) *(((?!-->).)*) +-->#';
-    /**
-     * Expression régulière pour une variable de bloc.
-     *
-     * @var string
-     */
-    const REG_MATCH_BLOCK_VAR = '#\$((\[(\.?[[:alnum:]_]+)+\])+)#';
+    const REG_BLOCK = '<!-- *([[:alpha:]]+) *(((?!-->).)*) *-->';
 
     /**
      * Tableau des variables pour la génération.
      *
      * @var array
      */
-    private $_vars;
+    private $_vars = array(
+        'SWAF'     => array(
+            'version' => SWAF_VERSION
+        ),
+        'TEMPLATE' => array(
+            'version' => '0.1'
+        )
+    );
     /**
-     * Dossier courant de travail.
+     * Tableau des fonctions de remplacement des blocs.
      *
-     * @var string
+     * @var array
      */
-    private $_wrkDir;
-
-    /**
-     * Constructeur de Template.
-     *
-     * @param string $directory Dossier courant de travail.
-     *
-     * @return null
-     */
-    public function __construct ($directory = MAIN_DIR)
-    {
-        $this->_vars = array(
-            'SWAF'     => array('version' => SWAF_VERSION),
-            'TEMPLATE' => array('version' => '0.1-12-10')
-        );
-        $this->_wrkDir = $directory;
-    }
+    private $_replaceBlockFunctions = array(
+        'IF'       => '_replaceIf',
+        'ELSE'     => '_replaceElse',
+        'END'      => '_replaceEnd',
+        'BLOCK'    => '_replaceBlock',
+        'FIRST'    => '_replaceFirst',
+        'LAST'     => '_replaceLast',
+        'EVEN'     => '_replaceEven',
+        'ODD'      => '_replaceOdd',
+        'EMPTY'    => '_replaceEmpty',
+        'ENDBLOCK' => '_replaceEndBlock',
+        'INCLUDE'  => '_replaceInclude',
+        ''         => ''
+    );
 
     /**
      * Assigne une variable pour la génération.
      *
-     * @param string $varName Nom de la variable à assigner.
-     * @param mixed  $var     Valeur à assigner à la variable.
+     * @param string $varName Nom de la variable à assigner.
+     * @param mixed  $var     Valeur à assigner à la variable.
      *
      * @return null
      */
-    public function assignVar ($varName, $var)
+    public function setVar ($varName, $var)
     {
         $this->_vars[$varName] = $var;
     }
@@ -93,7 +91,7 @@ class Template
      *
      * @return null
      */
-    public function assignVars ($vars)
+    public function setVars ($vars)
     {
         foreach ($vars as $varName => $var) {
             $this->_vars[$varName] = $var;
@@ -101,33 +99,58 @@ class Template
     }
 
     /**
-     * Efface une variable.
+     * Supprime une variable.
      *
-     * @param string $varName Nom de la variable à effacer.
+     * @param string $varName Nom de la variable.
      *
      * @return null
      */
-    public function clearVar ($varName)
+    public function unsetVar ($varName)
     {
         unset($this->_vars[$varName]);
     }
 
     /**
-     * Génère si nécessaire et affiche le fichier template.
+     * Vérifie qu'un variable est assignée.
+     *
+     * @param string $varName Nom de la variable à effacer.
+     *
+     * @return bool true si la variable est assignée, false sinon.
+     */
+    public function issetVar ($varName)
+    {
+        return isset($this->_vars[$varName]);
+    }
+
+    /**
+     * Retourne une variable.
+     *
+     * @param string $varName Nom de la variable à effacer.
+     *
+     * @return mixed Valeur de la variable ou null si celle-ci n'existe pas.
+     */
+    public function getVar ($varName)
+    {
+        if (!isset($this->_vars[$varName])) {
+            return null;
+        }
+        return $this->_vars[$varName];
+    }
+
+    /**
+     * Affiche et génère si nécessaire un fichier template.
      *
      * @param string $fileName Nom du fichier à afficher.
      *
      * @return null
      */
-    function show ($fileName)
+    function display ($fileName)
     {
-        $fileName = $this->_wrkDir."/$fileName";
-
         if (!FileManager::checkForCache($fileName)) {
             $this->_generate(realpath($fileName));
         }
 
-        include FileManager::cachepath($fileName);
+        include FileManager::cachepath($fileName).'.php';
     }
 
     /**
@@ -146,213 +169,273 @@ class Template
         $html = fread($handle, filesize($fileName));
         fclose($handle);
 
-        // VAR
-        while (preg_match(self::REG_MATCH_VAR, $html, $matches)) {
-            $var = $this->_getVar($matches[1]);
-            $html = str_replace($matches[0], $this->_getEcho($var), $html);
-        }
-
-        // BLOCKS
-        while (preg_match(self::REG_MATCH_BLOCK, $html, $matches)) {
-            $replace = '';
-            $args = $matches[2];
-
-            switch ($matches[1]) {
-            case 'IF':
-                $replace = $this->_getIf($args);
-                break;
-
-            case 'BLOCK':
-                $replace = $this->_getFor($args);
-                break;
-
-            case 'NOBLOCK':
-                $replace = $this->_getNoBlock($args);
-                break;
-
-            case 'IFFIRST':
-                $i = $this->_getCounter($args);
-                $replace = "<?php if($i==0){ ?>";
-                break;
-
-            case 'IFLAST':
-                $i = $this->_getCounter($args);
-                $var = $this->_getVar($args);
-                $replace = "<?php if($i==count($var)-1){ ?>";
-                break;
-
-            case 'IFEVEN':
-                $i = $this->_getCounter($args);
-                $replace = "<?php if($i%2==1){ ?>";
-                break;
-
-            case 'IFODD':
-                $i = $this->_getCounter($args);
-                $replace = "<?php if($i%2==0){ ?>";
-                break;
-
-            case 'ELSE':
-                $replace = '<?php }else{ ?>';
-                break;
-
-            case 'ENDIF':
-                $replace = '<?php } ?>';
-                break;
-
-            case 'ENDBLOCK':
-                $replace = '<?php }} ?>';
-                break;
-
-            case 'INCLUDE':
-                $replace = $this->_getInclude($args);
-                break;
-            }
-            $html = str_replace($matches[0], $replace, $html);
-        }
+        $html = $this->_replaceBlocks($html);
+        $html = $this->_replaceVars($html);
 
         $html = ' * '.date('r')."\n */ ?>\n$html";
         $html = "<?php\n/* generated by SWAF\Core\Template\n$html";
 
-        while (preg_match('#\?>(( |\n|\t|\r|)*)<\?php#', $html, $matches)) {
-            $html = str_replace($matches[0], $matches[1], $html);
-        }
+        $html = preg_replace_callback(
+            '#\?>(( |\n|\t|\r|)*)<\?php#',
+            function ($matches) {
+                return $matches[0];
+            },
+            $html
+        );
 
-        $cache = FileManager::cachepath($fileName);
+        $cache = FileManager::cachepath($fileName).'.php';
         $handle = fopen($cache, 'wb');
         fwrite($handle, $html);
         fclose($handle);
     }
 
     /**
-     * Retourne le nom d'une variable du contexte de cette classe à partir de
-     * son nom simple dans le template.
+     * Fonction de remplacement des blocs template.
      *
-     * @param string $tplVar Nom de la variable template simple.
+     * @param string $tpl Template à modifier.
      *
-     * @return string Nom de la variable dans le contexte.
+     * @return string Le template généré.
      */
-    private function _getSimpleVar ($tplVar)
+    private function _replaceBlocks ($tpl)
     {
-        if ($tplVar == '') {
-            return '';
+        return preg_replace_callback(
+            '#'.self::REG_BLOCK.'#',
+            function ($matches) {
+                $blockType = isset($matches[1]) ? strtoupper($matches[1]) : '';
+                $exp = isset($matches[2]) ? $matches[2] : '';
+                $func = $this->_replaceBlockFunctions[$blockType];
+                if ($func == '') {
+                    return '';
+                }
+                return $this->$func($exp);
+            },
+            $tpl
+        );
+    }
+
+    /**
+     * Fonction de remplacement des variables template.
+     *
+     * @param string $tpl  Template à modifier.
+     * @param bool   $echo Permet d'afficher directement les variables.
+     *
+     * @return string Le template généré.
+     */
+    private function _replaceVars ($tpl, $echo = true)
+    {
+        return preg_replace_callback(
+            '#'.self::REG_VAR.'#',
+            function ($matches) use ($echo) {
+                $var = $this->_var($matches[1]);
+                if (!$echo) {
+                    return "(isset($var) ? $var : false)";
+                }
+                return "<?php echo isset($var) ? $var : ''; ?>";
+            },
+            $tpl
+        );
+    }
+    /**
+     * Fonction de remplacement d'une variable template.
+     *
+     * @param string $var Variable sous forme de template.
+     *
+     * @return string Variable dans le contexte.
+     */
+    private function _var ($var)
+    {
+        $subVars = explode('{', $this->_clearVar($var));
+        $base    = $subVars[0];
+        $realVar = $this->_baseVar($base);
+
+        for ($i = 1; $i < count($subVars); $i++) {
+            $realVar .= '['.$this->_varCounter($base).']';
+            $realVar .= $this->_baseVar($subVars[$i]);
+            $base    .= '.'.$subVars[$i];
         }
-        return "['".str_replace('.', "']['", $tplVar)."']";
+        return '$this->_vars'.$realVar;
     }
 
     /**
-     * Retourne le nom d'une variable du contexte de cette classe à partir de
-     * son nom dans le template.
+     * Fonction de remplacement d'une variable template simple.
      *
-     * @param string $tplVar Nom de la variable template.
+     * @param string $var Variable sous forme de template simple.
      *
-     * @return string Nom de la variable dans le contexte.
+     * @return string Base du nom de la variable dans le contexte.
      */
-    private function _getVar ($tplVar)
+    private function _baseVar ($var)
     {
-        $vars = preg_split('#(\{|\[)#', $this->_getClearVar($tplVar));
-        $base = $vars[0];
-        $finalVar = $this->_getSimpleVar($vars[0]);
-        for ($i = 1; $i < count($vars); $i++) {
-            $finalVar = $finalVar.'['.$this->_getCounter($base).']';
-            $finalVar = $finalVar.$this->_getSimpleVar($vars[$i]);
-            $base = $base.'.'.$vars[$i];
-        }
-        return '$this->_vars'.$finalVar;
+        $baseVar = str_replace('.', "']['", $var);
+        return "['$baseVar']";
     }
 
     /**
-     * Retourne le compteur d'une variable du contexte de cette classe à partir
-     * de son nom dans le template.
+     * Nettoie une variable template en vue d'être traité par les autres
+     * fonctions de remplacement.
      *
-     * @param string $tplVar Nom de la variable template.
+     * @param string $var Variable sous forme de template.
      *
-     * @return string Compteur de la variable dans ce contexte.
+     * @return string variable nettoyé.
      */
-    private function _getCounter ($tplVar)
+    private function _clearVar ($var)
     {
-        $var = $this->_getClearVar($tplVar);
-        return '$_'.preg_replace('#(\.|\{|\[)#', '_', $var).'_count';
+        return preg_replace('#(^\$?\{)|\}| #', '', $var);
     }
 
     /**
-     * Nettoie le nom d'une variable template.
+     * Retourne le compteur correspondant à une variable template.
      *
-     * @param string $tplVar Nom de la variable template.
+     * @param string $var Variable sous forme de template.
      *
-     * @return string Variable template propre.
+     * @return string Compteur.
      */
-    private function _getClearVar ($tplVar)
+    private function _varCounter ($var)
     {
-        $tplVar = preg_replace('#(\$|\}|\]| )#', '', $tplVar);
-        return preg_replace('#(^\{|^\[)#', '', $tplVar);
+        $c = preg_replace('#\{|\.#', '_', $this->_clearVar($var));
+        return "\$_$c";
     }
 
     /**
-     * Retourne le code d'affichage d'une variable à partir de son nom.
+     * Fonction de remplacement d'un bloc `IF`.
      *
-     * @param string $var Nom de la variable.
+     * @param string $exp Expression du bloc.
      *
-     * @return string Code d'affichage.
+     * @return string Code de remplacement.
      */
-    private function _getEcho ($var)
+    private function _replaceIf ($exp)
     {
-        return "<?php echo isset($var)?$var:'<i>null</i>'; ?>";
+        $condition = $this->_replaceVars($exp, false);
+        return "<?php if ($condition) { ?>";
     }
 
     /**
-     * Retourne le code de boucle d'une variable à partir de son nom.
+     * Fonction de remplacement d'un bloc `ELSE`.
      *
-     * @param string $tplVar Nom de la variable.
+     * @param string $exp Expression du bloc.
      *
-     * @return string Code de boucle.
+     * @return string Code de remplacement.
      */
-    private function _getFor ($tplVar)
+    private function _replaceElse ($exp)
     {
-        $var = $this->_getVar($tplVar);
-        $i = $this->_getCounter($tplVar);
-        return "<?php if(isset($var)){for($i=0;$i<count($var);$i++){ ?>";
+        return '<?php } else { ?>';
     }
 
     /**
-     * Retourne le code de non-boucle d'une variable à partir de son nom.
+     * Fonction de remplacement d'un bloc `END`.
      *
-     * @param string $tplVar Nom de la variable.
+     * @param string $exp Expression du bloc.
      *
-     * @return string Code de non-boucle.
+     * @return string Code de remplacement.
      */
-    private function _getNoBlock ($tplVar)
+    private function _replaceEnd ($exp)
     {
-        $var = $this->_getVar($tplVar);
-        return "<?php }}if(!isset($var)||count($var)==0){{ ?>";
+        return '<?php } ?>';
     }
 
     /**
-     * Retourne le code de condition.
+     * Fonction de remplacement d'un bloc `BLOCK`.
      *
-     * @param string $condition Condition à tester.
+     * @param string $exp Expression du bloc.
      *
-     * @return string Code de condition.
+     * @return string Code de remplacement.
      */
-    private function _getIf ($condition)
+    private function _replaceBlock ($exp)
     {
-        while (preg_match(self::REG_MATCH_BLOCK_VAR, $condition, $matches)) {
-            $var = $this->_getVar($matches[1]);
-            $issetVar = "(isset($var)?$var:false)";
-            $condition = str_replace($matches[0], $issetVar, $condition);
-        }
-        return "<?php if ($condition){ ?>";
+        $var = $this->_var($exp);
+        $i   = $this->_varCounter($exp);
+        return "<?php if (isset($var)) {
+                for ($i = 0; $i < count($var); $i++) { ?>"
+        ;
     }
 
     /**
-    * Retourne le code d'inclusion d'un fichier à partir de son nom.
-    *
-    * @param string $fileName Nom du fichier à inclure.
-    *
-    * @return string Code d'inclusion.
-    */
-    private function _getInclude ($fileName)
+     * Fonction de remplacement d'un bloc `FIRST`.
+     *
+     * @param string $exp Expression du bloc.
+     *
+     * @return string Code de remplacement.
+     */
+    private function _replaceFirst ($exp)
     {
-        return "<?php \$this->show('$fileName'); ?>";
+        $i = $this->_varCounter($exp);
+        return "<?php if ($i == 0) { ?>";
+    }
+
+    /**
+     * Fonction de remplacement d'un bloc `LAST`.
+     *
+     * @param string $exp Expression du bloc.
+     *
+     * @return string Code de remplacement.
+     */
+    private function _replaceLast ($exp)
+    {
+        $var = $this->_var($exp);
+        $i   = $this->_varCounter($exp);
+        return "<?php if ($i == count($var) - 1) { ?>";
+    }
+
+    /**
+     * Fonction de remplacement d'un bloc `EVEN`.
+     *
+     * @param string $exp Expression du bloc.
+     *
+     * @return string Code de remplacement.
+     */
+    private function _replaceEven ($exp)
+    {
+        $i = $this->_varCounter($exp);
+        return "<?php if ($i % 2 == 1) { ?>";
+    }
+
+    /**
+     * Fonction de remplacement d'un bloc `ODD`.
+     *
+     * @param string $exp Expression du bloc.
+     *
+     * @return string Code de remplacement.
+     */
+    private function _replaceOdd ($exp)
+    {
+        $i = $this->_varCounter($exp);
+        return "<?php if ($i % 2 == 0) { ?>";
+    }
+
+    /**
+     * Fonction de remplacement d'un bloc `EMPTY`.
+     *
+     * @param string $exp Expression du bloc.
+     *
+     * @return string Code de remplacement.
+     */
+    private function _replaceEmpty ($exp)
+    {
+        $var = $this->_var($exp);
+        return "<?php }} if (!isset($var) || count($var) == 0) {{ ?>";
+    }
+
+    /**
+     * Fonction de remplacement d'un bloc `ENDBLOCK`.
+     *
+     * @param string $exp Expression du bloc.
+     *
+     * @return string Code de remplacement.
+     */
+    private function _replaceEndBlock ($exp)
+    {
+        return '<?php }} ?>';
+    }
+
+    /**
+     * Fonction de remplacement d'un bloc `INCLUDE`.
+     *
+     * @param string $exp Expression du bloc.
+     *
+     * @return string Code de remplacement.
+     */
+    private function _replaceInclude ($exp)
+    {
+        return '<?php \SWAF\Core\ViewManager::display(\''.$exp.'\') ?>';
     }
 }
 ?>

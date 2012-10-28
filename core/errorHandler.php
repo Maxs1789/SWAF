@@ -37,10 +37,10 @@ set_exception_handler("\SWAF\Core\\exceptionHandler");
 /**
  * Gestion des erreurs.
  *
- * @param int     $no   Type de l'erreur.
- * @param string  $str  Message de l'erreur.
- * @param string  $file Nom du fichier.
- * @param int     $line Numéro de ligne.
+ * @param int    $no   Type de l'erreur.
+ * @param string $str  Message de l'erreur.
+ * @param string $file Nom du fichier.
+ * @param int    $line Numéro de ligne.
  *
  * @return null
  */

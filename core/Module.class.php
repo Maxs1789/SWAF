@@ -150,7 +150,7 @@ class Module
                     "Impossible de trouver la classe '$className'"
                 );
             }
-            $controller['inst'] = new $className($this->_directory);
+            $controller['inst'] = new $className($this);
             if (!($controller['inst'] instanceof \SWAF\Core\Controller)) {
                 $controller['inst'] = null;
                 throw new CoreException(
@@ -195,6 +195,19 @@ class Module
                 "Impossible d'éxécuter l'action '$controllerName->$action'."
             );
         }
+    }
+
+    /**
+     * Affiche une page du module.
+     *
+     * @param string $FileName Nom du fichier à afficher.
+     *
+     * @return null
+     */
+    public function display ($fileName)
+    {
+        ViewManager::setDefaultDirectory($this->_directory.'/style');
+        ViewManager::display($fileName);
     }
 }
 

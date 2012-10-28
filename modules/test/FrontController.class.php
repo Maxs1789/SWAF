@@ -6,7 +6,7 @@ class FrontController extends \SWAF\Core\Controller
     {
         echo "<h1>Test:home</h1>";
 
-        $this->assignTemplateVar(
+        self::setVar(
             'users',
             array(
                 array(
@@ -26,9 +26,9 @@ class FrontController extends \SWAF\Core\Controller
                 )
             )
         );
-        $this->assignTemplateVar('show_users', true);
+        self::setVar('show_users', true);
 
-        $this->show('test.html');
+        self::module()->display('test.html');
     }
 
     public function test ($test)
