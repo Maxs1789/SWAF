@@ -39,7 +39,7 @@ class Controller
      *
      * @return null
      */
-    public function __construct (&$module)
+    final public function __construct (&$module)
     {
         $this->_module = $module;
     }
@@ -49,7 +49,7 @@ class Controller
      *
      * @return Module Référence du module.
      */
-    protected function &module ()
+    final protected function &module ()
     {
         return $this->_module;
     }
@@ -61,7 +61,7 @@ class Controller
      *
      * @return null
      */
-    protected function setVar ($varName, $var)
+    final protected function setVar ($varName, $var)
     {
         ViewManager::setTemplateVar($varName, $var);
     }
@@ -72,7 +72,7 @@ class Controller
      *
      * @return null
      */
-    protected function setVars ($vars)
+    final protected function setVars ($vars)
     {
         ViewManager::setTemplateVars($vars);
     }
@@ -83,7 +83,7 @@ class Controller
      *
      * @return null
      */
-    protected function unsetVar ($varName)
+    final protected function unsetVar ($varName)
     {
         ViewManager::unsetTemplateVar($varName);
     }
@@ -94,7 +94,7 @@ class Controller
      *
      * @return bool true si elle est assignée, false sinon.
      */
-    protected function issetVar ($varName)
+    final protected function issetVar ($varName)
     {
         return ViewManager::issetTemplateVar($vaName);
     }
@@ -105,7 +105,7 @@ class Controller
      *
      * @return mixed Valeur de la variable.
      */
-    protected function getVar ($varName)
+    final protected function getVar ($varName)
     {
         return ViewManager::getTemplateVar($varName);
     }

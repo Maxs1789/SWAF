@@ -51,19 +51,19 @@ class Module
      *
      * @var array
      */
-    private $_controllers;
+    private $_controllers = array();
     /**
      * Espace de nom du module.
      *
      * @var string
      */
-    private $_namespace;
+    private $_namespace = '';
     /**
      * Dossier du module.
      *
      * @var string
      */
-    private $_directory;
+    private $_directory = MAIN_DIR;
 
     /**
      * Constructeur de Module.
@@ -72,10 +72,7 @@ class Module
      */
     public function __construct ()
     {
-        $this->_router      = new Router();
-        $this->_controllers = array();
-        $this->_namespace   = '';
-        $this->_directory   = MAIN_DIR;
+        $this->_router = new Router();
     }
 
     /**
@@ -84,19 +81,37 @@ class Module
      * @param string $directory Dossier du module.
      *
      * @return null
-     * @throw FileException Lors d'une erreur de fichier.
+     * @throws FileException Lors d'une erreur de fichier.
      */
     public function init ($directory)
     {
-        $this->_directory = realpath($directory);
-        $confFile = realpath("$directory/module.ini");
-
-        FileException::checkReadable($confFile);
+        // Initialisation du dossier
+        $directory = realpath($directory);
+        if ($directory == '') {
+            $directory = MAIN_DIR;
+        }
+        $this->_directory = $directory;
+        // Chargement du fichier de configuration
+        $confFile = $directory.'/module.ini';
+        if (!file_exists($confFile)) {
+            throw FileException($confFile, FileException::EXIST);
+        }
+        $confFile = realpath($confFile);
+        if (!is_readable($confFile)) {
+            throw FileException($confFile, FileException::READ);
+        }
         $ini = parse_ini_file($confFile, true);
         // Récupération des routes
         if (isset($ini['module']['route_file'])) {
             $routeFile = $ini['module']['route_file'];
-            $this->_router->loadFile($directory.'/'.$routeFile);
+            try {
+                $this->_router->loadFile($directory.'/'.$routeFile);
+            } catch (FileException $ex) {
+                trigger_error(
+                    $ex->getMessage(),
+                    E_USER_WARNING
+                );
+            }
         } else {
             trigger_error(
                 "Fichier de route non spécifié.", 
@@ -124,12 +139,15 @@ class Module
     }
 
     /**
-     * Retourne un contrôleur.
+     * Retourne la référence d'un contrôleur.
      *
      * @param string $controllerName Nom du contrôleur.
      *
      * @return Controller Une référence du contrôleur demandé.
-     * @throw CoreException Si le contrôleur n'existe pas.
+     * @throws CoreException Si le contrôleur n'est pas définit ou qu'un
+     *                       problème survient lors de son instanciation.
+     *         FileException Si le fichier contenant le classe du contrôleur
+     *                       n'existe pas ou ne peut être lu.
      */
     public function &controller ($controllerName)
     {
@@ -142,12 +160,20 @@ class Module
         $controller = &$this->_controllers[$controllerName];
 
         if ($controller['inst'] == null) {
-            FileException::checkReadable($controller['file']);
-            include_once $controller['file'];
+            // Inclusion du fichier
+            $file = $controller['file'];
+            if (!file_exists($file)) {
+                throw new FileException($file, FileException::EXIST);
+            }
+            if (!is_readable($file)) {
+                throw new FileException($file, FileException::READ);
+            }
+            include_once $file;
+            // Instanciation
             $className = $this->_namespace.'\\'.$controllerName;
             if (!class_exists($className)) {
                 throw new CoreException(
-                    "Impossible de trouver la classe '$className'"
+                    "Impossible de trouver la classe '$className'."
                 );
             }
             $controller['inst'] = new $className($this);
@@ -163,13 +189,13 @@ class Module
     }
 
     /**
-     * Retrouve la route correspondante à l'url est appel l'action lié.
+     * Retrouve la route correspondante à l'url es appele l'action lié.
      *
      * @param string $url L'url à appeler.
      *
      * @return null
-     * @throw CoreException Si la route ne peut être appelée ou que le 
-     *                      contrôleur n'existe pas.
+     * @throws CoreException Si la route ne peut être appelée ou que le
+     *                       contrôleur n'existe pas.
      */
     public function call ($url)
     {

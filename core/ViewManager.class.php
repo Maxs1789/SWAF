@@ -193,15 +193,13 @@ class ViewManager
         // Style par défaut
         $baseName = self::$_moduleStyleDir.'/'.$fileName;
         $realName = realpath($baseName);
-        if ($realName != '') {
-            if (is_readable($realName)) {
-                return $realName;
-            } else {
-                throw new FileException($realName, FileException::READ);
-            }
-        } else {
-           throw new FileException($baseName, FileException::EXIST);
+        if ($realName == '') {
+            throw new FileException($baseName, FileException::EXIST);
         }
+        if (!is_readable($realName)) {
+            throw new FileException($realName, FileException::READ);
+        }
+        return $realName;
     }
 }
 
